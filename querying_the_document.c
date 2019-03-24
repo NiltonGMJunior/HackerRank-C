@@ -10,7 +10,7 @@ char* get_substring(char* text, int start, int end) {
     for (int i = start; i < end; ++i) {
         strcat(substring, text + i);
     }
-    strcat(substring, "\0");
+    strcat(substring, '\0');
     return substring;
 }
 
