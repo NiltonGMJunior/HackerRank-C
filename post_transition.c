@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define MAX_STRING_LENGTH 6
 
 struct package
@@ -29,8 +30,6 @@ struct town
 
 typedef struct town town;
 
-
-
 void print_all_packages(town t) {
     printf("%s:\n", t.name);
     for (int i = 0; i < t.offices_count; ++i)
@@ -41,28 +40,70 @@ void print_all_packages(town t) {
     }
 }
 
-void send_all_acceptable_packages(town* source, int source_office_index, town* target, int target_office_index) {	
+void send_all_acceptable_packages(town* source, int source_office_index, town* target, int target_office_index) {
+	// Registers the ammount of packages to be transfered
+	int count_transfers = 0;
+
+	// Alias for the source and target post offices
+	post_office* source_office = source->offices + source_office_index;
+	post_office* target_office = target->offices + target_office_index;
+
+	// Counts the number of packages that can be transfered
+	for (int i = 0; i < source_office->packages_count; ++i)
+		if ((source_office->packages + i)->weight >= target_office->min_weight && (source_office->packages + i)->weight <= target_office->max_weight)
+			count_transfers++;
+
+	// Creates packages arrays for the post offices
+	package* new_source_packages = malloc(sizeof(package) * (source_office->packages_count - count_transfers));
+	package* new_target_packages = malloc(sizeof(package) * (target_office->packages_count + count_transfers));
+
+	// Fills the new array with packages from the target post office with the previous packages
+	for (int i = 0; i < target_office->packages_count; ++i)
+		new_target_packages[i] = (target_office->packages)[i];
+
+	// Fills the remaining positions on the target post office packages' array and the source post office packages' array according to the weight
+	for (int i = 0, j = 0, k = 0; i < source_office->packages_count; ++i)
+		if ((source_office->packages + i)->weight >= target_office->min_weight && (source_office->packages + i)->weight <= target_office->max_weight)
+			new_target_packages[target_office->packages_count + k++] = (source_office->packages)[i];
+		else
+			new_source_packages[j++] = (source_office->packages)[i];
+
+	// Redefines the source post office
+	free(source_office->packages);
+	source_office->packages = new_source_packages;
+	source_office->packages_count -= count_transfers;
+
+	// Redefines the target post office
+	free(target_office->packages);
+	target_office->packages = new_target_packages;
+	target_office->packages_count += count_transfers;
 }
 
-int get_count_packages_town(town *t) {
-    int count_packages = 0;
-    for (int i = 0; i < t->offices_count; ++i)
-        count_packages += (t->offices)[i].packages_count;
-    return count_packages;
+int count_packages_in_town(town* t)
+{
+	int count = 0;
+	for (int i = 0; i < t->offices_count; ++i)
+		count += (t->offices + i)->packages_count;
+	return count;
 }
 
 town town_with_most_packages(town* towns, int towns_count) {
-    town* t = towns;
-    while (towns_count--)
-        if (get_count_packages_town(towns + towns_count) > get_count_packages_town(t))
-            t = towns + towns_count;
-    return *t;
+	int most_packages = 0;
+	for (int i = 1; i < towns_count; ++i)
+		if (count_packages_in_town(towns + i) > count_packages_in_town(towns + most_packages))
+			most_packages = i;
+	return *(towns + most_packages);
 }
 
 town* find_town(town* towns, int towns_count, char* name) {
+	int index;
     for (int i = 0; i < towns_count; ++i)
-        if ((towns + i)->name == name)
-            return towns + i;
+        if (strcmp((towns + i)->name, name) == 0)
+        {
+			index = i;
+			break;
+		}
+	return (towns + index);
 }
 
 int main()
