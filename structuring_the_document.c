@@ -11,24 +11,23 @@ struct word {
 
 struct sentence {
     struct word* data;
-    int word_count;//denotes number of words in a sentence
+    int word_count;
 };
 
 struct paragraph {
     struct sentence* data  ;
-    int sentence_count;//denotes number of sentences in a paragraph
+    int sentence_count;
 };
 
 struct document {
     struct paragraph* data;
-    int paragraph_count;//denotes number of paragraphs in a document
+    int paragraph_count;
 };
 
 char* get_substring(char* text, int start, int end) {
+    if (text == NULL || start > end || start < 0 || strlen(text) < end) return NULL;
     char* substring = (char*) malloc(sizeof(char) * (end - start + 1));
-    for (int i = start; i < end; ++i) {
-        strcat(substring, text + i);
-    }
+    strncpy(substring, text + start, end - start);
     strcat(substring, "\0");
     return substring;
 }
@@ -46,7 +45,7 @@ struct sentence get_sentence(char* text) {
     }
     struct word* words = (struct word*) malloc(sizeof(struct word) * (num_spaces + 1));
     for (int i = 0, j = 0, k = 0; i < strlen(text); ++i) {
-        if (text[i] == ' ') {
+        if (text[i] == ' ' || text[i] == '\0') {
             *(words + k) = get_word(get_substring(text, j, i));
             j = i + 1;
             k++;
@@ -65,7 +64,7 @@ struct paragraph get_paragraph(char* text) {
     }
     struct sentence* sentences = (struct sentence*) malloc(sizeof(struct sentence) * num_periods);
     for (int i = 0, j = 0, k = 0; i < strlen(text); ++i) {
-        if (text[i] == '.') {
+        if (text[i] == '.' || text[i] == '\0') {
             *(sentences + k) = get_sentence(get_substring(text, j, i));
             j = i + 1;
             k++;
@@ -85,7 +84,7 @@ struct document get_document(char* text) {
     struct paragraph* paragraphs = (struct paragraph*) malloc(sizeof(struct paragraph) * (num_paragraphs + 1));
     for (int i = 0, j = 0, k = 0; i < strlen(text); ++i)
     {
-        if (text[i] == '\n') {
+        if (text[i] == '\n' || text[i] == '\0') {
             *(paragraphs + k) = get_paragraph(get_substring(text, j, i));
             j = i + 1;
             k++;
@@ -163,6 +162,7 @@ int main()
 
     int q;
     scanf("%d", &q);
+
 
     while (q--) {
         int type;
