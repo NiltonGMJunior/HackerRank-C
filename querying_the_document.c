@@ -6,11 +6,10 @@
 #define MAX_PARAGRAPHS 5
 
 char* get_substring(char* text, int start, int end) {
+    if (text == NULL || start > end || start < 0 || strlen(text) < end) return NULL;
     char* substring = (char*) malloc(sizeof(char) * (end - start + 1));
-    for (int i = start; i < end; ++i) {
-        strcat(substring, text + i);
-    }
-    strcat(substring, '\0');
+    strncpy(substring, text + start, end - start);
+    strcat(substring, "\0");
     return substring;
 }
 
@@ -19,9 +18,10 @@ char** get_sentence(char* text) {
     for (int i = 0; i < strlen(text); ++i) {
         if (text[i] == ' ') num_spaces++;
     }
+
     char** sentence = (char**) malloc(sizeof(char*) * (num_spaces + 1));
-    for (int i = 0, j = 0, k = 0; i < strlen(text); ++i) {
-        if (text[i] == ' ') {
+    for (int i = 0, j = 0, k = 0; i < strlen(text) + 1; ++i) {
+        if (text[i] == ' ' || text[i] == '\0') {
             *(sentence + k) = get_substring(text, j, i);
             j = i + 1;
             k++;
@@ -36,8 +36,8 @@ char*** get_paragraph(char* text) {
         if (text[i] == '.') num_periods++;
     }
     char*** paragraph = (char***) malloc(sizeof(char**) * num_periods);
-    for (int i = 0, j = 0, k = 0; i < strlen(text); ++i) {
-        if (text[i] == '.') {
+    for (int i = 0, j = 0, k = 0; i < strlen(text) + 1; ++i) {
+        if (text[i] == '.' || text[i] == '\0') {
             *(paragraph + k) = get_sentence(get_substring(text, j, i));
             j = i + 1;
             k++;
@@ -52,9 +52,9 @@ char**** get_document(char* text) {
         if (text[i] == '\n') num_paragraphs++;
     }
     char**** document = (char****) malloc(sizeof(char***) * (num_paragraphs + 1));
-    for (int i = 0, j = 0, k = 0; i < strlen(text); ++i)
+    for (int i = 0, j = 0, k = 0; i < strlen(text) + 1; ++i)
     {
-        if (text[i] == '\n') {
+        if (text[i] == '\n' || text[i] == '\0') {
             *(document + k) = get_paragraph(get_substring(text, j, i));
             j = i + 1;
             k++;
@@ -117,43 +117,43 @@ void print_paragraph(char*** paragraph) {
     }
 }
 
-int main() {
-    char** sentence = get_sentence("Uma frase de teste");
-    print_sentence(sentence);
-}
-
-// int main() 
-// {
-//     char* text = get_input_text();
-//     char**** document = get_document(text);
-
-//     int q;
-//     scanf("%d", &q);
-
-//     while (q--) {
-//         int type;
-//         scanf("%d", &type);
-
-//         if (type == 3){
-//             int k, m, n;
-//             scanf("%d %d %d", &k, &m, &n);
-//             char* word = kth_word_in_mth_sentence_of_nth_paragraph(document, k, m, n);
-//             print_word(word);
-//         }
-
-//         else if (type == 2){
-//             int k, m;
-//             scanf("%d %d", &k, &m);
-//             char** sentence = kth_sentence_in_mth_paragraph(document, k, m);
-//             print_sentence(sentence);
-//         }
-
-//         else{
-//             int k;
-//             scanf("%d", &k);
-//             char*** paragraph = kth_paragraph(document, k);
-//             print_paragraph(paragraph);
-//         }
-//         printf("\n");
-//     }     
+// int main() {
+//     char** sentence = get_sentence("Uma frase de teste");
+//     print_sentence(sentence);
 // }
+
+int main() 
+{
+    char* text = get_input_text();
+    char**** document = get_document(text);
+
+    int q;
+    scanf("%d", &q);
+
+    while (q--) {
+        int type;
+        scanf("%d", &type);
+
+        if (type == 3){
+            int k, m, n;
+            scanf("%d %d %d", &k, &m, &n);
+            char* word = kth_word_in_mth_sentence_of_nth_paragraph(document, k, m, n);
+            print_word(word);
+        }
+
+        else if (type == 2){
+            int k, m;
+            scanf("%d %d", &k, &m);
+            char** sentence = kth_sentence_in_mth_paragraph(document, k, m);
+            print_sentence(sentence);
+        }
+
+        else{
+            int k;
+            scanf("%d", &k);
+            char*** paragraph = kth_paragraph(document, k);
+            print_paragraph(paragraph);
+        }
+        printf("\n");
+    }     
+}
