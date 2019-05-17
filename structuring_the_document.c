@@ -44,7 +44,7 @@ struct sentence get_sentence(char* text) {
         if (text[i] == ' ') num_spaces++;
     }
     struct word* words = (struct word*) malloc(sizeof(struct word) * (num_spaces + 1));
-    for (int i = 0, j = 0, k = 0; i < strlen(text); ++i) {
+    for (int i = 0, j = 0, k = 0; i < strlen(text) + 1; ++i) {
         if (text[i] == ' ' || text[i] == '\0') {
             *(words + k) = get_word(get_substring(text, j, i));
             j = i + 1;
@@ -63,7 +63,7 @@ struct paragraph get_paragraph(char* text) {
         if (text[i] == '.') num_periods++;
     }
     struct sentence* sentences = (struct sentence*) malloc(sizeof(struct sentence) * num_periods);
-    for (int i = 0, j = 0, k = 0; i < strlen(text); ++i) {
+    for (int i = 0, j = 0, k = 0; i < strlen(text) + 1; ++i) {
         if (text[i] == '.' || text[i] == '\0') {
             *(sentences + k) = get_sentence(get_substring(text, j, i));
             j = i + 1;
@@ -82,7 +82,7 @@ struct document get_document(char* text) {
         if (text[i] == '\n') num_paragraphs++;
     }
     struct paragraph* paragraphs = (struct paragraph*) malloc(sizeof(struct paragraph) * (num_paragraphs + 1));
-    for (int i = 0, j = 0, k = 0; i < strlen(text); ++i)
+    for (int i = 0, j = 0, k = 0; i < strlen(text) + 1; ++i)
     {
         if (text[i] == '\n' || text[i] == '\0') {
             *(paragraphs + k) = get_paragraph(get_substring(text, j, i));
